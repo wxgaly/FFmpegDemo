@@ -42,4 +42,6 @@ public class FFmpegHelper {
     public native String avcodecinfo();
     public native String avfilterinfo();
 
+    public native String getVideoInfo(String videoPath);
+
 }
