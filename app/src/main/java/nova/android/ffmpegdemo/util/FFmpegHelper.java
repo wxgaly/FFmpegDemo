@@ -1,5 +1,7 @@
 package nova.android.ffmpegdemo.util;
 
+import nova.android.ffmpegdemo.bean.VideoInfo;
+
 /**
  * nova.android.ffmpegdemo.util.
  *
@@ -42,6 +44,6 @@ public class FFmpegHelper {
     public native String avcodecinfo();
     public native String avfilterinfo();
 
-    public native String getVideoInfo(String videoPath);
+    public native VideoInfo getVideoInfo(String videoPath);
 
 }

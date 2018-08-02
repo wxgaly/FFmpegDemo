@@ -1,6 +1,7 @@
 package nova.android.ffmpegdemo
 
 import android.os.Bundle
+import android.os.Environment
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -15,6 +16,7 @@ import nova.android.ffmpegdemo.util.FFmpegHelper
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private val TAG = "MainActivity"
+    private val VIDEO_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/hero3.mp4"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +40,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btn_filter.setOnClickListener(this)
         btn_format.setOnClickListener(this)
         btn_protocol.setOnClickListener(this)
+        btn_videoinfo.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -48,6 +51,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 R.id.btn_filter -> sample_text.text = FFmpegHelper.getInstance().avfilterinfo()
                 R.id.btn_format -> sample_text.text = FFmpegHelper.getInstance().avformatinfo()
                 R.id.btn_protocol -> sample_text.text = FFmpegHelper.getInstance().urlprotocolinfo()
+                R.id.btn_videoinfo -> {
+                    sample_text.text = "${FFmpegHelper.getInstance().getVideoInfo(VIDEO_PATH).duration} --- " +
+                            "${FFmpegHelper.getInstance().getVideoInfo(VIDEO_PATH).bitRate}"
+                }
                 else -> Log.d(TAG, "click not")
             }
         }
