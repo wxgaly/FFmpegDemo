@@ -52,8 +52,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 R.id.btn_format -> sample_text.text = FFmpegHelper.getInstance().avformatinfo()
                 R.id.btn_protocol -> sample_text.text = FFmpegHelper.getInstance().urlprotocolinfo()
                 R.id.btn_videoinfo -> {
-                    sample_text.text = "${FFmpegHelper.getInstance().getVideoInfo(VIDEO_PATH).duration} --- " +
-                            "${FFmpegHelper.getInstance().getVideoInfo(VIDEO_PATH).bitRate}"
+                    sample_text.text = FFmpegHelper.getInstance().getVideoInfo(VIDEO_PATH).toString()
                 }
                 else -> Log.d(TAG, "click not")
             }

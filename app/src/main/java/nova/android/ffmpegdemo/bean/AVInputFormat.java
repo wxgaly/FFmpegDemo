@@ -56,4 +56,12 @@ public class AVInputFormat {
         this.extensions = extensions;
     }
 
+    @Override
+    public String toString() {
+        return "AVInputFormat{" +
+                "name='" + name + '\'' +
+                ", longName='" + longName + '\'' +
+                ", extensions='" + extensions + '\'' +
+                '}';
+    }
 }

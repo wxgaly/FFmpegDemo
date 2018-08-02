@@ -176,35 +176,35 @@ Java_nova_android_ffmpegdemo_util_FFmpegHelper_getVideoInfo(JNIEnv *env, jobject
 //        return env->NewStringUTF("初始化 解码器上下文失败");
 //    }
 
-//    std::string duration = std::to_string(formatContext->duration);
 
-//    jobject video_info = getJObject(env, "nova/android/ffmpegdemo/bean/VideoInfo");
-    jclass clazz_obj = env->FindClass("nova/android/ffmpegdemo/bean/VideoInfo");
+    jclass clazz_video_info = env->FindClass("nova/android/ffmpegdemo/bean/VideoInfo");
 
-    jmethodID mid_obj = env->GetMethodID(clazz_obj, "<init>", "()V");
+    jmethodID mid_video_info = env->GetMethodID(clazz_video_info, "<init>", "(JJ)V");
+    jobject video_info = env->NewObject(clazz_video_info, mid_video_info, formatContext->duration,
+                                        formatContext->bit_rate);
 
-    jobject video_info = env->NewObject(clazz_obj, mid_obj);
+    AVInputFormat *iformat = formatContext->iformat;
 
-    jfieldID fid_duration = env->GetFieldID(clazz_obj, "duration", "J");
+    jclass clazz_iformat = env->FindClass("nova/android/ffmpegdemo/bean/AVInputFormat");
+    jmethodID mid_iformat = env->GetMethodID(clazz_iformat, "<init>",
+                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
 
-    env->SetLongField(video_info, fid_duration, formatContext->duration);
+    jstring name = env->NewStringUTF(iformat->name);
+    jstring long_name = env->NewStringUTF(iformat->long_name);
+    jstring extensions = env->NewStringUTF(iformat->extensions);
 
-    FFLOGI("%ld", (long) formatContext->duration);
+    jobject jiformat = env->NewObject(clazz_iformat, mid_iformat, name, long_name, extensions);
 
-    jlong duration = env->GetLongField(video_info, fid_duration);
-    FFLOGD("%ld", (long) duration);
-    jmethodID mid_set_duration = env->GetMethodID(clazz_obj, "setDuration", "(J)V");
+    jmethodID mid_set_iformat = env->GetMethodID(clazz_video_info, "setAvInputFormat",
+                                                 "(Lnova/android/ffmpegdemo/bean/AVInputFormat;)V");
 
-    env->CallVoidMethod(video_info, mid_set_duration, formatContext->duration);
-
-    mid_obj = env->GetMethodID(clazz_obj, "<init>", "(JJ)V");
-    video_info = env->NewObject(clazz_obj, mid_obj, formatContext->duration, formatContext->bit_rate);
+    env->CallVoidMethod(video_info, mid_set_iformat, jiformat);
 
     return video_info;
 }
 
 /**
- * 获取java对象
+ * 通过默认构造方法获取java对象
  * @param name
  * @return
  */

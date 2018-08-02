@@ -60,4 +60,13 @@ public class VideoInfo {
     public void setAvInputFormat(AVInputFormat avInputFormat) {
         this.avInputFormat = avInputFormat;
     }
+
+    @Override
+    public String toString() {
+        return "VideoInfo{" +
+                "duration=" + duration +
+                ", bitRate=" + bitRate +
+                ", avInputFormat=" + avInputFormat +
+                '}';
+    }
 }
