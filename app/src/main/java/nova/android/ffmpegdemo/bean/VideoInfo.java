@@ -23,6 +23,11 @@ public class VideoInfo {
      */
     private AVInputFormat avInputFormat;
 
+    /**
+     * 编解码器信息
+     */
+    private AVCodecContext codecContext;
+
     public VideoInfo() {
     }
 
@@ -35,6 +40,13 @@ public class VideoInfo {
         this.duration = duration;
         this.bitRate = bitRate;
         this.avInputFormat = avInputFormat;
+    }
+
+    public VideoInfo(long duration, long bitRate, AVInputFormat avInputFormat, AVCodecContext codecContext) {
+        this.duration = duration;
+        this.bitRate = bitRate;
+        this.avInputFormat = avInputFormat;
+        this.codecContext = codecContext;
     }
 
     public long getDuration() {
@@ -61,12 +73,21 @@ public class VideoInfo {
         this.avInputFormat = avInputFormat;
     }
 
+    public AVCodecContext getCodecContext() {
+        return codecContext;
+    }
+
+    public void setCodecContext(AVCodecContext codecContext) {
+        this.codecContext = codecContext;
+    }
+
     @Override
     public String toString() {
         return "VideoInfo{" +
                 "duration=" + duration +
                 ", bitRate=" + bitRate +
                 ", avInputFormat=" + avInputFormat +
+                ", codecContext=" + codecContext +
                 '}';
     }
 }

@@ -130,59 +130,64 @@ Java_nova_android_ffmpegdemo_util_FFmpegHelper_getVideoInfo(JNIEnv *env, jobject
     }
 
 
-//    int video_stream_index = -1;//记录视频流所在数组下标
-//    FFLOGI("当前视频数据，包含的数据流数量：%d", formatContext->nb_streams);
-//    //找到"视频流".AVFormatContext 结构体中的nb_streams字段存储的就是当前视频文件中所包含的总数据流数量——
-//    //视频流，音频流，字幕流
-//    for (int i = 0; i < formatContext->nb_streams; i++) {
-//
-//        //如果是数据流的编码格式为AVMEDIA_TYPE_VIDEO——视频流。
-//        if (formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-//            video_stream_index = i;//记录视频流下标
-//            break;
-//        }
-//    }
-//
-//    if (video_stream_index == -1) {
-//        FFLOGI("没有找到 视频流。");
-//        return env->NewStringUTF("没有找到 视频流。");
-//    }
-//
-//    //通过编解码器的id——codec_id 获取对应（视频）流解码器
-//    AVCodecParameters *codecParameters = formatContext->streams[video_stream_index]->codecpar;
-//    AVCodec *videoDecoder = avcodec_find_decoder(codecParameters->codec_id);
-//
-//    if (videoDecoder == NULL) {
-//        FFLOGI("未找到对应的流解码器。");
-//        return env->NewStringUTF("未找到对应的流解码器");
-//    }
-//
-//    //通过解码器分配(并用  默认值   初始化)一个解码器context
-//    AVCodecContext *codecContext = avcodec_alloc_context3(videoDecoder);
-//
-//    if (codecContext == NULL) {
-//        FFLOGI("分配 解码器上下文失败。");
-//        return env->NewStringUTF("分配 解码器上下文失败");
-//    }
-//
-//    //更具指定的编码器值填充编码器上下文
-//    if (avcodec_parameters_to_context(codecContext, codecParameters) < 0) {
-//        FFLOGI("填充编解码器上下文失败。");
-//        return env->NewStringUTF("填充编解码器上下文失败");
-//    }
-//    //通过所给的编解码器初始化编解码器上下文
-//    if (avcodec_open2(codecContext, videoDecoder, NULL) < 0) {
-//        FFLOGI("初始化 解码器上下文失败。");
-//        return env->NewStringUTF("初始化 解码器上下文失败");
-//    }
+    int video_stream_index = -1;//记录视频流所在数组下标
+    FFLOGI("当前视频数据，包含的数据流数量：%d", formatContext->nb_streams);
+    //找到"视频流".AVFormatContext 结构体中的nb_streams字段存储的就是当前视频文件中所包含的总数据流数量——
+    //视频流，音频流，字幕流
+    for (int i = 0; i < formatContext->nb_streams; i++) {
+
+        //如果是数据流的编码格式为AVMEDIA_TYPE_VIDEO——视频流。
+        if (formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            video_stream_index = i;//记录视频流下标
+            break;
+        }
+    }
+
+    if (video_stream_index == -1) {
+        FFLOGI("没有找到 视频流。");
+        return env->NewStringUTF("没有找到 视频流。");
+    }
+
+    //通过编解码器的id——codec_id 获取对应（视频）流解码器
+    AVCodecParameters *codecParameters = formatContext->streams[video_stream_index]->codecpar;
+    AVCodec *videoDecoder = avcodec_find_decoder(codecParameters->codec_id);
+
+    if (videoDecoder == NULL) {
+        FFLOGI("未找到对应的流解码器。");
+        return env->NewStringUTF("未找到对应的流解码器");
+    }
+
+    //通过解码器分配(并用  默认值   初始化)一个解码器context
+    AVCodecContext *codecContext = avcodec_alloc_context3(videoDecoder);
+
+    if (codecContext == NULL) {
+        FFLOGI("分配 解码器上下文失败。");
+        return env->NewStringUTF("分配 解码器上下文失败");
+    }
+
+    //更具指定的编码器值填充编码器上下文
+    if (avcodec_parameters_to_context(codecContext, codecParameters) < 0) {
+        FFLOGI("填充编解码器上下文失败。");
+        return env->NewStringUTF("填充编解码器上下文失败");
+    }
+
+    //通过所给的编解码器初始化编解码器上下文
+    if (avcodec_open2(codecContext, videoDecoder, NULL) < 0) {
+        FFLOGI("初始化 解码器上下文失败。");
+        return env->NewStringUTF("初始化 解码器上下文失败");
+    }
 
 
+    //初始化videoInfo
     jclass clazz_video_info = env->FindClass("nova/android/ffmpegdemo/bean/VideoInfo");
 
     jmethodID mid_video_info = env->GetMethodID(clazz_video_info, "<init>", "(JJ)V");
+
+    //使用构造方法赋值时长和码率
     jobject video_info = env->NewObject(clazz_video_info, mid_video_info, formatContext->duration,
                                         formatContext->bit_rate);
 
+    //初始化iformat
     AVInputFormat *iformat = formatContext->iformat;
 
     jclass clazz_iformat = env->FindClass("nova/android/ffmpegdemo/bean/AVInputFormat");
@@ -193,12 +198,47 @@ Java_nova_android_ffmpegdemo_util_FFmpegHelper_getVideoInfo(JNIEnv *env, jobject
     jstring long_name = env->NewStringUTF(iformat->long_name);
     jstring extensions = env->NewStringUTF(iformat->extensions);
 
+    //使用构造方法赋值 名称，长名称，扩展
     jobject jiformat = env->NewObject(clazz_iformat, mid_iformat, name, long_name, extensions);
 
     jmethodID mid_set_iformat = env->GetMethodID(clazz_video_info, "setAvInputFormat",
                                                  "(Lnova/android/ffmpegdemo/bean/AVInputFormat;)V");
 
+    //调用set方法赋值
     env->CallVoidMethod(video_info, mid_set_iformat, jiformat);
+
+    //初始化codec
+    const AVCodec *codec = codecContext->codec;
+
+    jstring codecName = env->NewStringUTF(codec->name);
+    jstring codecLongName = env->NewStringUTF(codec->long_name);
+
+    jclass clazz_codec = env->FindClass("nova/android/ffmpegdemo/bean/AVCodec");
+    jmethodID mid_codec = env->GetMethodID(clazz_codec, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V");
+
+    //创建jcodec对象
+    jobject jcodec = env->NewObject(clazz_codec, mid_codec, codecName, codecLongName);
+
+
+    //初始化需要的值
+    jint width = codecContext->width;
+    jint height = codecContext->height;
+    jint sample_rate = codecContext->sample_rate;
+    jint channels = codecContext->channels;
+
+    jclass clazz_codec_context = env->FindClass("nova/android/ffmpegdemo/bean/AVCodecContext");
+    jmethodID mid_codec_context = env->GetMethodID(clazz_codec_context, "<init>",
+                                                   "(Lnova/android/ffmpegdemo/bean/AVCodec;IIII)V");
+
+    //创建jcodeccontext对象
+    jobject jcodec_context = env->NewObject(clazz_codec_context, mid_codec_context, jcodec, width, height, sample_rate,
+                                            channels);
+
+    jmethodID mid_set_codec_context = env->GetMethodID(clazz_video_info, "setCodecContext",
+                                                       "(Lnova/android/ffmpegdemo/bean/AVCodecContext;)V");
+
+    //调用set方法赋值
+    env->CallVoidMethod(video_info, mid_set_codec_context, jcodec_context);
 
     return video_info;
 }
