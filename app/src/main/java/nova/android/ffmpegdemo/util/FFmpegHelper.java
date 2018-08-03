@@ -46,4 +46,6 @@ public class FFmpegHelper {
 
     public native VideoInfo getVideoInfo(String videoPath);
 
+    public native int getRotation(String videoPath);
+
 }

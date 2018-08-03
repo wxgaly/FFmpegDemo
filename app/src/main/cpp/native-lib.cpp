@@ -240,6 +240,9 @@ Java_nova_android_ffmpegdemo_util_FFmpegHelper_getVideoInfo(JNIEnv *env, jobject
     //调用set方法赋值
     env->CallVoidMethod(video_info, mid_set_codec_context, jcodec_context);
 
+    //释放资源
+    avformat_free_context(formatContext);
+
     return video_info;
 }
 
@@ -252,4 +255,81 @@ jobject getJObject(JNIEnv *env, const char *name) {
     jclass clazz_obj = env->FindClass(name);
     jmethodID mid_obj = env->GetMethodID(clazz_obj, "<init>", "()V");
     return env->NewObject(clazz_obj, mid_obj);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_nova_android_ffmpegdemo_util_FFmpegHelper_getRotation(JNIEnv *env, jobject instance, jstring videoPath_) {
+
+    const char *input = env->GetStringUTFChars(videoPath_, 0);
+
+    if (input == NULL) {
+        FFLOGI("字符串转换失败......");
+        return -1;
+    }
+
+    //注册FFmpeg所有编解码器，以及相关协议。
+    av_register_all();
+
+    //分配结构体
+    AVFormatContext *formatContext = avformat_alloc_context();
+
+    //打开视频数据源。由于Android 对SDK存储权限的原因，如果没有为当前项目赋予SDK存储权限，打开本地视频文件时会失败
+    int open_state = avformat_open_input(&formatContext, input, NULL, NULL);
+    if (open_state < 0) {
+        char errbuf[128];
+        if (av_strerror(open_state, errbuf, sizeof(errbuf)) == 0) {
+            FFLOGI("打开视频输入流信息失败，失败原因： %s", errbuf);
+        }
+        return -1;
+    }
+
+    //为分配的AVFormatContext 结构体中填充数据
+    if (avformat_find_stream_info(formatContext, NULL) < 0) {
+        FFLOGI("读取输入的视频流信息失败。");
+        return -1;
+    }
+
+
+    int video_stream_index = -1;//记录视频流所在数组下标
+    FFLOGI("当前视频数据，包含的数据流数量：%d", formatContext->nb_streams);
+    //找到"视频流".AVFormatContext 结构体中的nb_streams字段存储的就是当前视频文件中所包含的总数据流数量——
+    //视频流，音频流，字幕流
+    for (int i = 0; i < formatContext->nb_streams; i++) {
+
+        //如果是数据流的编码格式为AVMEDIA_TYPE_VIDEO——视频流。
+        if (formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            video_stream_index = i;//记录视频流下标
+            break;
+        }
+    }
+
+    if (video_stream_index == -1) {
+        FFLOGI("没有找到 视频流。");
+        return -1;
+    }
+
+
+    //通过编解码器的id——codec_id 获取对应（视频）流解码器
+//    AVCodecParameters *codecParameters = formatContext->streams[video_stream_index]->codecpar;
+
+    //获取视频元数据
+    AVDictionaryEntry *tag = NULL;
+
+    tag = av_dict_get(formatContext->streams[video_stream_index]->metadata, "rotate", tag, 0);
+    tag = av_dict_get(formatContext->metadata, "creation_time", tag, 0);
+
+    int angle = -1;
+
+    if (tag != NULL) {
+//        angle = atoi(tag->value);
+//        FFLOGD("angle: %d", angle)
+        FFLOGD("%s", tag->value)
+    }
+
+    //释放资源
+    avformat_free_context(formatContext);
+
+
+    return angle;
 }
