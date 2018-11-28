@@ -1,5 +1,7 @@
 package nova.android.ffmpegdemo.util;
 
+import android.view.Surface;
+
 import nova.android.ffmpegdemo.bean.VideoInfo;
 
 /**
@@ -47,5 +49,7 @@ public class FFmpegHelper {
     public native VideoInfo getVideoInfo(String videoPath);
 
     public native int getRotation(String videoPath);
+
+    public native int renderVideo(String videoPath, Surface surface);
 
 }

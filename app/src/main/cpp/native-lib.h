@@ -9,6 +9,9 @@
 
 #include <jni.h>
 #include <android/log.h>
+#include <android/native_window.h>
+#include <android/native_window_jni.h>
+#include <unistd.h>
 
 
 extern "C" {
@@ -19,10 +22,14 @@ extern "C" {
 //过滤器
 #include "libavfilter/avfilter.h"
 
+#include "libswscale/swscale.h"
+
+#include <libavutil/imgutils.h>
+
 #define FFLOGI(FORMAT, ...) __android_log_print(ANDROID_LOG_INFO,"ffmpeg",FORMAT,##__VA_ARGS__);
 #define FFLOGE(FORMAT, ...) __android_log_print(ANDROID_LOG_ERROR,"ffmpeg",FORMAT,##__VA_ARGS__);
 #define FFLOGD(FORMAT, ...) __android_log_print(ANDROID_LOG_DEBUG,"ffmpeg",FORMAT,##__VA_ARGS__);
 
 }
 
-jobject getJObject(JNIEnv *env, const char* name);
+jobject getJObject(JNIEnv *env, const char *name);

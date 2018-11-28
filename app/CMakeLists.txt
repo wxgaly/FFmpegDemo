@@ -93,6 +93,7 @@ target_link_libraries( # Specifies the target library.
                        avutil-55
                        swresample-2
                        swscale-4
+                       -landroid # Add this.
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib}
