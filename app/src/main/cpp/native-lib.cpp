@@ -519,16 +519,34 @@ Java_nova_android_ffmpegdemo_util_FFmpegHelper_renderVideo(JNIEnv *env, jobject 
                     int size = codecContext->height;
                     int halfSize = size / 2;
 
+                    int halfLine = oneLineByte / 2;
+                    int halfStride = srcStride / 2;
+
+//                    for (int i = 1, j = 0; i < size; i += 2, j += 2) {
+//                        memcpy(dst + j * halfLine, src + i * halfStride, static_cast<size_t>(halfStride));
+//                        memcpy(dst + i * halfLine, src + j * halfStride, static_cast<size_t>(halfStride));
+//                    }
+//
+//                    for (int i = 0, j = 1; i < size; i += 2, j += 2) {
+//                        memcpy(dst + (i + size) * halfLine, src + (j + size) * halfStride,
+//                               static_cast<size_t>(halfStride));
+//                        memcpy(dst + (j + size) * halfLine, src + (i + size) * halfStride,
+//                               static_cast<size_t>(halfStride));
+//                    }
+
                     //折行
-                    for (int i = 0; i < halfSize; i++) {
-                        memcpy(dst + (i + halfSize) * oneLineByte, src + i * srcStride, static_cast<size_t>(srcStride));
+//                    for (int i = 0; i < halfSize; i++) {
+//                        memcpy(dst + (i + halfSize) * oneLineByte, src + i * srcStride, static_cast<size_t>(srcStride));
+//                    }
+//
+//                    for (int i = 0; i < halfSize; i++) {
+//                        memcpy(dst + i * oneLineByte, src + (i + halfSize) * srcStride, static_cast<size_t>(srcStride));
+//                    }
+
+                    for (int i = 0; i < size; i++) {
+                        memcpy(dst + i * oneLineByte, src + i * srcStride, static_cast<size_t>(srcStride));
                     }
-
-                    for (int i = 0; i < halfSize; i++) {
-                        memcpy(dst + i * oneLineByte, src + (i + halfSize) * srcStride, static_cast<size_t>(srcStride));
-                    }
-
-
+                    
                     //解锁
                     ANativeWindow_unlockAndPost(nativeWindow);
                     //进行短暂休眠。如果休眠时间太长会导致播放的每帧画面有延迟感，如果短会有加速播放的感觉。
